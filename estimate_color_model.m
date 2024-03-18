@@ -15,21 +15,13 @@ function color_model = estimate_color_model(image, tau)
 
 
         mask = bins_mask(max_bin,:,:);
-        bin_pixels = [];
-        [rows, cols, ~] = size(image);
-        for r = 1:rows
-            for c = 1:cols
-                if mask(r,c) ~= 0 
-                    bin_pixels = [temp image(r,c,:)];
-                end
-            end
-        end
-        new = [mean(bin_pixels) conv(bin_pixels)];
-
-        color_model = [color_model; new];
         
-        seed_pixel = select_seed_pixel(image, bin_pixels);
+        seed_pixel = select_seed_pixel(image, mask);
         seed_pixels = [seed_pixels seed_pixel];
+        
+        % TODO: The paper is saying that after they select the color bin they want to add to the color model, they select the seed pixel using Eq. 11. After they have the seed pixel, they compute the weights of a guided filter centered at that pixel and use that to fit the normal distribution. The guided filter will have higher weights for pixels that are close in color and proximity to the center pixel. So basically they are determining the parameters of the normal distribution based on a local neighborhood of similar pixels around the seed pixel if that makes sense. (edited) 
+        new = ?
+        color_model = [color_model; new];
         
         representation_score = weight_pixel(image,color_model);
 
