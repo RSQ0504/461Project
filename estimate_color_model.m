@@ -33,9 +33,6 @@ function [votes,bins_mask] = calculate_votes(image, bins_mask,representation_sco
     [rows, cols, ~] = size(image);
     for i = 1:rows
         for j = 1:cols
-            if representation_score(i,j) < tau^2
-                continue
-            end
             rp = representation_score(i,j);
             pixel = image(i, j, :);
             r = pixel(1);
@@ -45,6 +42,10 @@ function [votes,bins_mask] = calculate_votes(image, bins_mask,representation_sco
             bin_g = ceil(g / 25.6);
             bin_b = ceil(b / 25.6);
             index = sub2ind(size(votes), bin_r, bin_g, bin_b);
+            if rp < tau^2
+                bins_mask(index,i,j) = 0;
+                continue
+            end
             bins_mask(index,i,j) = 1;
             grad_image = 4 * image(i, j) - image(max(i-1,1), j) - image(min(i+1,rows), j) - image(i, max(j-1,1)) - image(i, min(j+1,cols));
             votes(bin_r, bin_g, bin_b) = votes(bin_r, bin_g, bin_b) + exp(-norm(grad_image)) * (1 - exp(rp));
