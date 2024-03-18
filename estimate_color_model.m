@@ -68,8 +68,7 @@ function representation_score_map = weight_pixel(image,color_model)
     end
 end
 
-function seed_pixel = select_seed_pixel(image, seed_pixels)
-    max_weight = 0;
+function seed_pixel = select_seed_pixel(image, mask)
     seed_pixel = 0;
     % TODO:
 end
