@@ -1,4 +1,4 @@
-function color_model = estimate_color_model(image, tau)
+function [color_model,seed_pixels] = estimate_color_model(image, tau)
     color_model = [];
     seed_pixels = [];
     [rows, cols, ~] = size(image);
