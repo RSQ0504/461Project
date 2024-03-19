@@ -14,9 +14,9 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
         end
 
 
-        mask = bins_mask(max_bin,:,:);
+        color_bin_mask = bins_mask(max_bin,:,:);
         
-        [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, mask);
+        [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask);
         seed_pixel = image(seed_pixel_x,seed_pixel_y);
         seed_pixels = [seed_pixels seed_pixel];
         
@@ -82,7 +82,7 @@ function representation_score_map = weight_pixel(image,color_model)
     end
 end
 
-function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, mask)
+function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
     seed_pixel = 0;
     % TODO: 返回 pixel的 xy坐标
 end
