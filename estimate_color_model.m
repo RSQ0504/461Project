@@ -82,16 +82,36 @@ function representation_score_map = weight_pixel(image,color_model)
     end
 end
 
-function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
+function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask, num_clusters)
     % color_bin_mask 是一个和image 一样大小的2维mask,
     % 用来标出处于color_bin中的pixel在image里的位置
-    % 初始化
-    seed_pixel_x = NaN;
-    seed_pixel_y = NaN;
-    max_albedo = -Inf;
     % 找到属于color bin的像素的indices
     [rows, cols] = find(color_bin_mask);
+    % 获取对应的像素灰度值
+    marked_values = image(sub2ind(size(image), markedRows, markedCols));
 
+    features = [marked_values, rows, cols];
+    % 用k-mean进行空间聚类
+    opts = statset('Display','final');
+    [clusterIdx, clusterCenters] = kmeans(features, nClusters, 'Distance', 'sqeuclidean', 'Replicates', 3, 'Options', opts);\
+
+    seed_pixel_x = zeros(nClusters, 1);
+    seed_pixel_y = zeros(nClusters, 1);
+
+    % 对每个聚类，找到最接近聚类中心的像素作为种子像素
+    for i = 1:nClusters
+        % 找到属于当前聚类的所有特征点
+        clusterFeatures = features(clusterIdx == i, :);
+        % 计算这些点与聚类中心的距离
+        distances = sqrt(sum((clusterFeatures - clusterCenters(i, :)).^2, 2));
+        % 找到距离最小的特征点索引
+        [~, minIdx] = min(distances);
+        % 获取种子像素的空间位置
+        seed_pixel_x(i) = clusterFeatures(minIdx, 1);
+        seed_pixel_y(i) = clusterFeatures(minIdx, 2);
+    end
+
+    %{
     % 依据高反照率来找pixel
     for i = 1:length(rows)
         current_albedo = image(rows(i), cols(i));
@@ -101,7 +121,7 @@ function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
             seed_pixel_y = rows(i);
         end
     end
-
+    %}
 
     % TODO: 返回 pixel的 xy坐标
 end
