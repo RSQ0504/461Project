@@ -88,8 +88,20 @@ function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
     % 初始化
     seed_pixel_x = NaN;
     seed_pixel_y = NaN;
+    max_albedo = -Inf;
     % 找到属于color bin的像素的indices
     [rows, cols] = find(color_bin_mask);
+    
+    % 依据高反照率来找pixel
+    for i = 1:length(rows)
+        current_albedo = image(rows(i), cols(i));
+        if current_albedo > max_albedo
+            max_albedo = current_albedo;
+            seed_pixel_x = cols(i);
+            seed_pixel_y = rows(i);
+        end
+    end
+
     % 检查找到的像素是否属于color bin
     if ~isempty(rows)
         seed_pixel_x = cols(1);
