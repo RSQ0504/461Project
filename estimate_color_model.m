@@ -82,7 +82,7 @@ function representation_score_map = weight_pixel(image,color_model)
     end
 end
 
-function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask, num_clusters)
+function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
     % color_bin_mask 是一个和image 一样大小的2维mask,
     % 用来标出处于color_bin中的pixel在image里的位置
     % 确保mask是逻辑索引
