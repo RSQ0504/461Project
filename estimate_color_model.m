@@ -85,6 +85,15 @@ end
 function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
     % color_bin_mask 是一个和image 一样大小的2维mask,
     % 用来标出处于color_bin中的pixel在image里的位置
-    seed_pixel = 0;
+    % 初始化
+    seed_pixel_x = NaN;
+    seed_pixel_y = NaN;
+    % 找到属于color bin的像素的indices
+    [rows, cols] = find(color_bin_mask);
+    % 检查找到的像素是否属于color bin
+    if ~isempty(rows)
+        seed_pixel_x = cols(1);
+        seed_pixel_y = rows(1);
+    end
     % TODO: 返回 pixel的 xy坐标
 end
