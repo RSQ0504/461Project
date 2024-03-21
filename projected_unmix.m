@@ -13,10 +13,7 @@ function F_hat = projected_unmix(mu1, cov1, mu2, cov2, c)
     F_hat = alpha_hat1 * cost1 + alpha_hat2 * cost2;
 end
 
-function cost = layer_color_cost(ui, mu_i, cov_i)
-    diff = ui - mu_i;
-    cost = diff * inv(cov_i) * diff';
-end
+
 
 
 % mu1 = [mean_value_1_R, mean_value_1_G, mean_value_1_B];

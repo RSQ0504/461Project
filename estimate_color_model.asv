@@ -50,15 +50,14 @@ function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon)
            if mask(r,c) ==0
                continue
            end
-           pixels = [pixels reshape(neighborhood(r, c, :),[3,1])];
+           pixels = [pixels neighborhood(r, c, :)];
        end
    end
-    weighted_mean = mean(pixels, 2);
-    weighted_std = std(pixels,0, 2);
-    size(weighted_std)
-    % TODO:
-    new = [weighted_mean,weighted_std];
+   reshape(pixels, )
 
+
+            
+    new = [weighted_mean,weighted_std];
 
 end
 
