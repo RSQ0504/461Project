@@ -25,7 +25,7 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
         epsilon = 0.1;
         new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon);
         color_model = [color_model; new];
-        
+
         representation_score = weight_pixel(image,color_model);
 
     end
@@ -55,8 +55,6 @@ function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon)
    end
     weighted_mean = mean(pixels, 2);
     weighted_std = std(pixels,0, 2);
-    size(weighted_std)
-    % TODO:
     new = [weighted_mean,weighted_std];
 
 
@@ -90,15 +88,32 @@ end
 function representation_score_map = weight_pixel(image,color_model)
     [rows, cols, ~] = size(image);
     representation_score_map = zeros(rows, cols);
+    num_mode = size(color_model,1);
     for r = 1:rows
         for c = 1: cols 
             pixel = image(r,c,:);
-            for i = 1: len(color_model)
-                for j = i+1 : len(color_model)
-                    [ui,convi] = color_model(i);
-                    [uj,convj] = color_model(j);
-                    cost = layer_color_cost(pixel, ui, convi);
-                    representation_score_map(r,c) = min([representation_score_map(r,c),cost,projected_unmix(ui, convi, uj, convj, pixel)]);
+            pixel = reshape(pixel,[3,1]);
+            if num_mode == 3
+                model1 = color_model;
+                model2 = color_model;
+                ui = model1(:,1);
+                stdi = model1(:,2);
+                uj= model2(:,1);
+                stdj = model2(:,2);
+                cost = layer_color_cost(pixel, ui, stdi);
+                representation_score_map(r,c) = cost;
+            else
+                for i = 1:3: num_mode
+                    for j = i+3 :3: num_mode
+                        model1 = color_model(i:i+2,:);
+                        model2 = color_model(j:j+2,:);
+                        ui = model1(:,1);
+                        stdi = model1(:,2);
+                        uj= model2(:,1);
+                        stdj = model2(:,2);
+                        cost = layer_color_cost(pixel, ui, stdi);
+                        representation_score_map(r,c) = min([representation_score_map(r,c),cost,projected_unmix(ui, stdi, uj, stdj, pixel)]);
+                    end
                 end
             end
         end
