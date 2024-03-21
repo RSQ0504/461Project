@@ -112,7 +112,8 @@ function representation_score_map = weight_pixel(image,color_model)
                         uj= model2(:,1);
                         stdj = model2(:,2);
                         cost = layer_color_cost(pixel, ui, stdi);
-                        representation_score_map(r,c) = min([representation_score_map(r,c),cost,projected_unmix(ui, stdi, uj, stdj, pixel)]);
+                        project_score = projected_unmix(ui, stdi, uj, stdj, pixel);
+                        representation_score_map(r,c) = min([representation_score_map(r,c),cost,project_score]);
                     end
                 end
             end
