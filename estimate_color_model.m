@@ -26,7 +26,7 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
         new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon);
         color_model = [color_model; new];
         showResult(image,seed_pixel_x,seed_pixel_y);
-        representation_score = weight_pixel(image,color_model)
+        representation_score = weight_pixel(image,color_model,representation_score)
     end
 end
 
@@ -84,7 +84,7 @@ function [votes,bins_mask] = calculate_votes(image, bins_mask,representation_sco
     end
 end
 
-function representation_score_map = weight_pixel(image,color_model)
+function representation_score = weight_pixel(image,color_model,representation_score)
     [rows, cols, ~] = size(image);
     num_mode = size(color_model,1);
     for r = 1:rows
@@ -99,19 +99,19 @@ function representation_score_map = weight_pixel(image,color_model)
                 uj= model2(:,1);
                 stdj = model2(:,2);
                 cost = layer_color_cost(pixel, ui, stdi);
-                representation_score_map(r,c) = cost;
+                representation_score(r,c) = cost;
             else
                 for i = 1:3: num_mode
                     model1 = color_model(i:i+2,:);
                     ui = model1(:,1);
                     stdi = model1(:,2);
                     cost = layer_color_cost(pixel, ui, stdi);
-                    for j = i+3 :3: num_mode
-                        model2 = color_model(j:j+2,:);
+                    for j = i+3 :3: num_mode            
+                        model2 = color_model(j:j+2,:);         
                         uj= model2(:,1);
                         stdj = model2(:,2);
                         project_score = projected_unmix(ui, stdi, uj, stdj, pixel);
-                        representation_score_map(r,c) = min([cost,project_score]);
+                        representation_score(r,c) = min([representation_score(r,c),cost,project_score]);
                     end
                 end
             end
