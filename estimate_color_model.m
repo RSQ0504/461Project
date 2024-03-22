@@ -25,9 +25,8 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
         epsilon = 0.1;
         new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon);
         color_model = [color_model; new];
-
+        showResult(image,seed_pixel_x,seed_pixel_y);
         representation_score = weight_pixel(image,color_model);
-
     end
 end
 
