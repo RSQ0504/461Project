@@ -35,6 +35,7 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                         covj = model2( : , 2 : end);
                         [project_score, alpha_i, alpha_j, u_hat1, u_hat2] = projected_unmix(ui, covi, uj, covj, pixel);
                         if cost <= min(project_score, representation_score(r, c))
+                            fprintf("layer %d in case 1\n", i)
                             min_F_hat_layers(r, c, 1) = i;
                             min_F_hat_layers(r, c, 2) = i;
                             alphas_1(r, c) = 1;
@@ -43,6 +44,7 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                             representation_score(r, c) = cost;
                             % u_hat_2(r,c,:) = pixel;
                         elseif representation_score(r, c) >= project_score 
+                            fprintf("layer %d in case 2 with %d\n", i, j)
                             min_F_hat_layers(r, c, 1) = i;
                             min_F_hat_layers(r, c, 2) = j;
                             alphas_1(r, c) = alpha_i;
