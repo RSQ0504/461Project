@@ -6,7 +6,7 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2] = weight_p
     alphas_1 = zeros(rows, cols);
     alphas_2 = zeros(rows, cols);
     for r = 1 : rows
-        for c = 1 : cols 
+        for c = 1 : cols
             pixel = image(r, c, :);
             pixel = reshape(pixel , [3, 1]);
             if num_layers_times_3 == 3
@@ -15,6 +15,9 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2] = weight_p
                 covi = model1(:, 2 : end);
                 cost = layer_color_cost(pixel, ui, covi);
                 representation_score(r, c) = cost;
+                min_F_hat_layers(r, c) = [1, 1];
+                alphas_1(r, c) = 1;
+                alphas_2(r, c) = 0;
             else
                 for i = 1 : 3 : num_layers_times_3
                     model1 = color_model(i : i + 2, :);
@@ -26,11 +29,12 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2] = weight_p
                         uj= model2( : , 1);
                         covj = model2( : , 2 : end);
                         [project_score, alpha_i, alpha_j] = projected_unmix(ui, covi, uj, covj, pixel);
-                        if min_F_hat_energy(r, c) >= project_score
+                        if min(min_F_hat_energy(r, c), cost) >= project_score
                             min_F_hat_layers(r, c, 1) = i;
                             min_F_hat_layers(r, c, 2) = j;
                             alphas_1(r, c) = alpha_i;
                             alphas_2(r, c) = alpha_j;
+                            min_F_hat_energy(r, c) = project_score;
                         end
                         representation_score(r, c) = min([representation_score(r, c), cost, project_score]);
                     end
