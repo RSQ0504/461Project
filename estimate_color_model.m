@@ -17,15 +17,15 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
 
         color_bin_mask = bins_mask(max_bin,:,:);
         
-        [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask);
-        seed_pixel = reshape(image(seed_pixel_x,seed_pixel_y,:),[3,1]); % ?
+        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask);
+        seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
         
         % The paper is saying that after they select the color bin they want to add to the color model, they select the seed pixel using Eq. 11. After they have the seed pixel, they compute the weights of a guided filter centered at that pixel and use that to fit the normal distribution. The guided filter will have higher weights for pixels that are close in color and proximity to the center pixel. So basically they are determining the parameters of the normal distribution based on a local neighborhood of similar pixels around the seed pixel if that makes sense. (edited) 
         epsilon = 0.1;
-        new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon);
+        new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon);
         color_model = [color_model; new];
-        showResult(image,seed_pixel_x,seed_pixel_y);
+        showResult(image,seed_pixel_r,seed_pixel_c);
         representation_score = weight_pixel(image,color_model,representation_score)
     end
 end
@@ -119,7 +119,7 @@ function representation_score = weight_pixel(image,color_model,representation_sc
     end
 end
 
-function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
+function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask)
     [~,tar_x,tar_y] = size(color_bin_mask);
     color_bin_mask = reshape(color_bin_mask, [tar_x, tar_y]);
     [rows, cols, ~] = size(image);
@@ -137,8 +137,8 @@ function [seed_pixel_x,seed_pixel_y] = select_seed_pixel(image, color_bin_mask)
             score = Sp + exp(-norm(grad_image));
             if score > best_score
                 best_score = score;
-                seed_pixel_x = r;
-                seed_pixel_y = c;
+                seed_pixel_r = r;
+                seed_pixel_c = c;
             end
         end
     end
