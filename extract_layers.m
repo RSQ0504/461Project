@@ -18,7 +18,7 @@ function color_layers = extract_layers(image, color_model, min_F_hat_layers, alp
     for i = 1:3:size(color_model,1)
         temp = color_layers(:,:,i:i+2);
         imshow(temp);
-        imwrite(temp,sprintf('result__self%02d.jpg',i),'jpg','Quality',95);
+        imwrite(temp,sprintf('radishes_result__self%02d.jpg',i),'jpg','Quality',95);
     end
 end
 
