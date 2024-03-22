@@ -4,7 +4,7 @@ function [F_hat, alpha_hat1, alpha_hat2] = projected_unmix(mu1, cov1, mu2, cov2,
     u_hat1 = c - dot((c - mu1), n) / dot(n, n) * n; % Projection for layer 1
     u_hat2 = c - dot((c - mu2), n) / dot(n, n) * n; % Projection for layer 2
 
-    alpha_hat1 = norm(c - mu2) / norm(mu1 - mu2);
+    alpha_hat1 = norm(c - u_hat2) / norm(u_hat1 - u_hat2);
     alpha_hat2 = 1 - alpha_hat1;
 
     cost1 = layer_color_cost(u_hat1, mu1, cov1);

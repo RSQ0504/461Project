@@ -13,4 +13,11 @@ function color_layers = extract_layers(image, color_model, min_F_hat_layers, alp
             color_layers(r,c,model_info(2):model_info(2)+2) = alphas_2(r,c) * mean2;
         end
     end
+
+    for i = 1:3:size(color_model,1)
+        temp = color_layers(:,:,i+2);
+        imshow(temp);
+    end
 end
+
+    
