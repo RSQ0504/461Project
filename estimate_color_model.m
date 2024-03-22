@@ -26,7 +26,7 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
         new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon);
         color_model = [color_model; new];
         showResult(image,seed_pixel_r,seed_pixel_c);
-        representation_score = weight_pixel(image,color_model,representation_score)
+        [representation_score, min_F_hat_layers, alphas_1, alphas_2] = weight_pixel(image,color_model,representation_score);
     end
 end
 
@@ -84,37 +84,7 @@ function [votes,bins_mask] = calculate_votes(image, bins_mask,representation_sco
     end
 end
 
-function representation_score = weight_pixel(image,color_model,representation_score)
-    [rows, cols, ~] = size(image);
-    num_mode = size(color_model,1);
-    for r = 1:rows
-        for c = 1: cols 
-            pixel = image(r,c,:);
-            pixel = reshape(pixel,[3,1]);
-            if num_mode == 3
-                model1 = color_model;
-                ui = model1(:,1);
-                covi = model1(:,2:end);
-                cost = layer_color_cost(pixel, ui, covi);
-                representation_score(r,c) = cost;
-            else
-                for i = 1:3: num_mode
-                    model1 = color_model(i:i+2,:);
-                    ui = model1(:,1);
-                    covi = model1(:,2:end);
-                    cost = layer_color_cost(pixel, ui, covi);
-                    for j = i+3 :3: num_mode            
-                        model2 = color_model(j:j+2,:);         
-                        uj= model2(:,1);
-                        covj = model2(:,2:end);
-                        project_score = projected_unmix(ui, covi, uj, covj, pixel);
-                        representation_score(r,c) = min([representation_score(r,c),cost,project_score]);
-                    end
-                end
-            end
-        end
-    end
-end
+
 
 function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask)
     [~,tar_x,tar_y] = size(color_bin_mask);
