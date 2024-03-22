@@ -44,7 +44,7 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                             representation_score(r, c) = cost;
                             % u_hat_2(r,c,:) = pixel;
                         elseif representation_score(r, c) >= project_score 
-                            fprintf("layer %d in case 2 with %d\n", i, j)
+                            % fprintf("layer %d in case 2 with %d\n", i, j)
                             min_F_hat_layers(r, c, 1) = i;
                             min_F_hat_layers(r, c, 2) = j;
                             alphas_1(r, c) = alpha_i;
