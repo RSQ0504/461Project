@@ -35,7 +35,7 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                         covj = model2( : , 2 : end);
                         [project_score, alpha_i, alpha_j, u_hat1, u_hat2] = projected_unmix(ui, covi, uj, covj, pixel);
                         if cost <= min(project_score, representation_score(r, c))
-                            fprintf("layer %d in case 1\n", i)
+                            % fprintf("layer %d in case 1\n", i)
                             min_F_hat_layers(r, c, 1) = i;
                             min_F_hat_layers(r, c, 2) = i;
                             alphas_1(r, c) = 1;
