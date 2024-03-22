@@ -53,8 +53,8 @@ function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon)
        end
    end
     weighted_mean = mean(pixels, 2);
-    weighted_std = std(pixels,0, 2);
-    new = [weighted_mean,weighted_std];
+    weighted_cov = cov(pixels');
+    new = [weighted_mean,weighted_cov];
 
 
 end
@@ -93,24 +93,21 @@ function representation_score = weight_pixel(image,color_model,representation_sc
             pixel = reshape(pixel,[3,1]);
             if num_mode == 3
                 model1 = color_model;
-                model2 = color_model;
                 ui = model1(:,1);
-                stdi = model1(:,2);
-                uj= model2(:,1);
-                stdj = model2(:,2);
-                cost = layer_color_cost(pixel, ui, stdi);
+                covi = model1(:,2:end);
+                cost = layer_color_cost(pixel, ui, covi);
                 representation_score(r,c) = cost;
             else
                 for i = 1:3: num_mode
                     model1 = color_model(i:i+2,:);
                     ui = model1(:,1);
-                    stdi = model1(:,2);
-                    cost = layer_color_cost(pixel, ui, stdi);
+                    covi = model1(:,2:end);
+                    cost = layer_color_cost(pixel, ui, covi);
                     for j = i+3 :3: num_mode            
                         model2 = color_model(j:j+2,:);         
                         uj= model2(:,1);
-                        stdj = model2(:,2);
-                        project_score = projected_unmix(ui, stdi, uj, stdj, pixel);
+                        covj = model2(:,2:end);
+                        project_score = projected_unmix(ui, covi, uj, covj, pixel);
                         representation_score(r,c) = min([representation_score(r,c),cost,project_score]);
                     end
                 end
