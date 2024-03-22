@@ -1,8 +1,8 @@
 function F_hat = projected_unmix(mu1, cov1, mu2, cov2, c)
     n = mu1 - mu2;
 
-    u_hat1 = c - ((c - mu1) * n') * n / norm(n)^2; % Projection for layer 1
-    u_hat2 = c - ((c - mu2) * n') * n / norm(n)^2; % Projection for layer 2
+    u_hat1 = c - dot((c - mu1), n) / dot(n, n) * n; % Projection for layer 1
+    u_hat2 = c - dot((c - mu2), n) / dot(n, n) * n; % Projection for layer 2
 
     alpha_hat1 = norm(c - mu2) / norm(mu1 - mu2);
     alpha_hat2 = 1 - alpha_hat1;
