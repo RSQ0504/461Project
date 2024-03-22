@@ -1,4 +1,4 @@
-function [F_hat, alpha_hat1, alpha_hat2] = projected_unmix(mu1, cov1, mu2, cov2, c)
+function [F_hat, alpha_hat1, alpha_hat2, u_hat1, u_hat2] = projected_unmix(mu1, cov1, mu2, cov2, c)
     n = mu1 - mu2;
 
     u_hat1 = c - dot((c - mu1), n) / dot(n, n) * n; % Projection for layer 1

@@ -1,4 +1,4 @@
-function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2] = estimate_color_model(image, tau)
+function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = estimate_color_model(image, tau)
     color_model = [];
     seed_pixels = [];
     [rows, cols, ~] = size(image);
@@ -26,7 +26,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2] = estim
         new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon);
         color_model = [color_model; new];
         % showResult(image,seed_pixel_r,seed_pixel_c);
-        [representation_score, min_F_hat_layers, alphas_1, alphas_2] = weight_pixel(image,color_model);
+        [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = weight_pixel(image,color_model);
     end
 end
 
