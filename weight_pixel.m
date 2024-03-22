@@ -22,7 +22,7 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                 alphas_1(r, c) = 1;
                 alphas_2(r, c) = 0;
                 u_hat_1(r,c,:) = pixel;
-                u_hat_2(r,c,:) = pixel;
+                % u_hat_2(r,c,:) = pixel;
             else
                 for i = 1 : 3 : num_layers_times_3
                     model1 = color_model(i : i + 2, :);
@@ -40,7 +40,8 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                             alphas_1(r, c) = 1;
                             alphas_2(r, c) = 0;
                             u_hat_1(r,c,:) = pixel;
-                            u_hat_2(r,c,:) = pixel;
+                            representation_score(r, c) = cost;
+                            % u_hat_2(r,c,:) = pixel;
                         elseif representation_score(r, c) >= project_score 
                             min_F_hat_layers(r, c, 1) = i;
                             min_F_hat_layers(r, c, 2) = j;

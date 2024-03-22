@@ -3,7 +3,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
     seed_pixels = [];
     [rows, cols, ~] = size(image);
     bins_mask = zeros(1000, rows,cols);
-    representation_score = ones(rows, cols) * (2*tau^2);
+    representation_score = ones(rows, cols) * Inf;
     has_vote = true;
     while has_vote
         [votes,bins_mask] = calculate_votes(image, bins_mask,representation_score,tau);
