@@ -1,5 +1,0 @@
-function mahal_dist = layer_color_cost(ui, mu_i, std_i)
-    d_normalized = (ui-mu_i) ./ std_i;
-    diff = ui-mu_i;
-
-end

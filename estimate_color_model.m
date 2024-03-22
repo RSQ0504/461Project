@@ -8,7 +8,7 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
     while has_vote
         [votes,bins_mask] = calculate_votes(image, bins_mask,representation_score,tau);
         [max_votes, max_bin] = max(votes(:));
-        
+
         if max_votes <= 0
             has_vote = false;
             continue;
@@ -16,11 +16,11 @@ function [color_model,seed_pixels] = estimate_color_model(image, tau)
 
 
         color_bin_mask = bins_mask(max_bin,:,:);
-        
+
         [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
-        
+
         % The paper is saying that after they select the color bin they want to add to the color model, they select the seed pixel using Eq. 11. After they have the seed pixel, they compute the weights of a guided filter centered at that pixel and use that to fit the normal distribution. The guided filter will have higher weights for pixels that are close in color and proximity to the center pixel. So basically they are determining the parameters of the normal distribution based on a local neighborhood of similar pixels around the seed pixel if that makes sense. (edited) 
         epsilon = 0.1;
         new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon);
@@ -33,25 +33,25 @@ end
 
 function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon)
     neighborhood = image(max(1, seed_pixel_x - 10) : min(size(image, 1), seed_pixel_x + 10), ...
-                    max(1, seed_pixel_y - 10) : min(size(image, 2), seed_pixel_y + 10),:);
-   center = reshape(image(seed_pixel_x, seed_pixel_y,:),[3,1]);
-   center_colors = [];
-   for color = 1 : 3
+                   max(1, seed_pixel_y - 10) : min(size(image, 2), seed_pixel_y + 10),:);
+    center = reshape(image(seed_pixel_x, seed_pixel_y,:),[3,1]);
+    center_colors = [];
+    for color = 1 : 3
        center_colors(:,:,color) = ones(size(neighborhood(: , :, color))) .* center(color);
-   end
-   diff = sum((center_colors - neighborhood).^2, 3);
-   mask = (diff < epsilon);
-   [rows,cols] = size(mask);
-   pixels = [];
-   % center = zeros(size(neighborhood)) .* center;
-   for r = 1:rows
-       for c = 1:cols
-           if mask(r,c) ==0
-               continue
-           end
-           pixels = [pixels reshape(neighborhood(r, c, :),[3,1])];
-       end
-   end
+    end
+    diff = sum((center_colors - neighborhood).^2, 3);
+    mask = (diff < epsilon);
+    [rows,cols] = size(mask);
+    pixels = [];
+    % center = zeros(size(neighborhood)) .* center;
+    for r = 1:rows
+        for c = 1:cols
+            if mask(r,c) ==0
+                continue
+            end
+            pixels = [pixels reshape(neighborhood(r, c, :),[3,1])];
+        end
+    end
     weighted_mean = mean(pixels, 2);
     weighted_cov = cov(pixels');
     new = [weighted_mean,weighted_cov];
