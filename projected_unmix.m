@@ -9,8 +9,11 @@ function [F_hat, alpha_hat1, alpha_hat2, u_hat1, u_hat2] = projected_unmix(mu1, 
 
     cost1 = layer_color_cost(u_hat1, mu1, cov1);
     cost2 = layer_color_cost(u_hat2, mu2, cov2);
-
-    F_hat = alpha_hat1 * cost1 + alpha_hat2 * cost2;
+    if alpha_hat1 >= 1
+        F_hat = Inf;
+    else
+        F_hat = alpha_hat1 * cost1 + alpha_hat2 * cost2;
+    end
 end
 
 % mu1 = [mean_value_1_R, mean_value_1_G, mean_value_1_B];
