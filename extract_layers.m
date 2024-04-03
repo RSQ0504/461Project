@@ -21,7 +21,7 @@ function color_layers = extract_layers(image, color_model, min_F_hat_layers, alp
         temp = color_layers(:,:,i:i+3);
         %imshow(temp);
         %imwrite(temp,sprintf('result_self%02d.png',i),'jpg','Quality',95);
-        imwrite(temp(:,:,1:3), sprintf('result_self%02d.png',i), 'png', 'Alpha', temp(:,:,4))
+        imwrite(temp(:,:,1:3), sprintf('1_result_self%02d.png',i), 'png', 'Alpha', temp(:,:,4))
     end
 end
 
