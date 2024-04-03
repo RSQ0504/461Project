@@ -8,11 +8,11 @@ function color_layers = extract_layers(image, color_model, min_F_hat_layers, alp
             % mean1 = model1(:,1);
             if model_info(1) ~= model_info(2)
                 model2 = color_model(model_info(2):model_info(2)+2,:);
-                color_layers(r,c,model_info(2):model_info(2)+2) = alphas_2(r,c) * u_hat_2(r,c,:);
+                color_layers(r,c,model_info(2):model_info(2)+2) = u_hat_2(r,c,:);
                 color_layers(r,c,model_info(2)+3) = alphas_2(r,c);
                 % mean2 = model2(:,1);
             end
-            color_layers(r,c,model_info(1):model_info(1)+2) = alphas_1(r,c) * u_hat_1(r,c,:);
+            color_layers(r,c,model_info(1):model_info(1)+2) = u_hat_1(r,c,:);
             color_layers(r,c,model_info(1)+3) = alphas_1(r,c);
         end
     end
