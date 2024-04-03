@@ -25,7 +25,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
         epsilon = 0.1;
         new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon);
         color_model = [color_model; new];
-        % showResult(image,seed_pixel_r,seed_pixel_c);
+        showResult(image,seed_pixel_r,seed_pixel_c);
         % saveas(gcf, sprintf('radishes_point__self%02d.jpg',size(color_model,1)-2));
         [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = weight_pixel(image,color_model);
     end
@@ -55,6 +55,22 @@ function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon)
     end
     weighted_mean = mean(pixels, 2);
     weighted_cov = cov(pixels');
+
+    cov_norm = norm(weighted_cov);
+    cov_inv = inv(weighted_cov);
+    cov_inv_norm = norm(cov_inv);
+    if cov_norm < 1e-4 
+        weighted_cov = 0.0001 * eye(size(weighted_cov));
+    end    
+    if cov_inv_norm < 1e-4 
+        weighted_cov = 0.0001 * eye(size(weighted_cov));
+    end
+
+    eigenvalues = eig(weighted_cov);
+    if any(eigenvalues < 0)
+        weighted_cov = 0.0001 * eye(size(weighted_cov));
+    end
+
     new = [weighted_mean,weighted_cov];
 
 
