@@ -16,12 +16,12 @@ def estimate_color_model(image,tau):
             continue
         
         color_bin_mask = bins_mask[max_bin,:,:]
-        x,y = select_seed_pixel(image,color_bin_mask)
-        seed_pixel = image[x,y,:]
+        y,x = select_seed_pixel(image,color_bin_mask)
+        seed_pixel = image[y,x,:]
         seed_pixels.append(seed_pixel)  
         
         epsilon = 0.1
-        new = get_new_layer(image,x,y,epsilon)
+        new = get_new_layer(image,y,x,epsilon)
         color_model.append(new)
         rp,min_F_hat_layers,alphas_1,alphas_2,u_hat_1,u_hat_2 = weight_pixel(image,color_model)
     return color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2
