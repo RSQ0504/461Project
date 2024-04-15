@@ -55,7 +55,6 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                     alphas_2(r, c) = alpha_j(idx);
                     u_hat_1(r,c,:) = u_hat1(idx);
                     u_hat_2(r,c,:) = u_hat2(idx);
-                    rp(idx) = project_score(idx);
                 end
                 rp = min(min(rp, cost), project_score);
             end
