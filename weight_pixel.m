@@ -51,10 +51,10 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                     % fprintf("layer %d in case 2 with %d\n", i, j)
                     min_F_hat_layers(r, c, 1) = i;
                     min_F_hat_layers(r, c, 2) = j;
-                    alphas_1(r, c) = alpha_i(idx);
-                    alphas_2(r, c) = alpha_j(idx);
-                    u_hat_1(r,c,:) = u_hat1(idx);
-                    u_hat_2(r,c,:) = u_hat2(idx);
+                    alphas_1(r, c) = alpha_i(1,filter(idx));
+                    alphas_2(r, c) = alpha_j(1,filter(idx));
+                    u_hat_1(r,c,:) = u_hat1(:,filter(idx));
+                    u_hat_2(r,c,:) = u_hat2(:,filter(idx));
                 end
                 rp = min(min(rp, cost), project_score);
             end
