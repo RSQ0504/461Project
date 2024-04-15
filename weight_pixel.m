@@ -14,23 +14,28 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
         covi = model1(:, 2 : end);
         ui_mat = repmat(ui, [1, rows*cols]);
         cost = layer_color_cost(V, ui_mat, covi);
+        cost = reshape(cost,[rows,cols]);
         representation_score = cost;
-        min_F_hat_layers(r, c,:) = [1, 1];
-        alphas_1(r, c) = 1;
-        alphas_2(r, c) = 0;
-        u_hat_1(r,c,:) = pixel;
+        min_F_hat_layers = ones(rows, cols, 2);
+        alphas_1 = ones(rows, cols);
+        alphas_2 = zeros(rows, cols);
+        u_hat_1 = image;
         % u_hat_2(r,c,:) = pixel;
     else
         for i = 1 : 3 : num_layers_times_3
             model1 = color_model(i : i + 2, :);
             ui = model1( : , 1);
             covi = model1( : , 2 : end);
-            cost = layer_color_cost(pixel, ui, covi);
+            ui_mat = repmat(ui, [1, rows*cols]);
+            cost = layer_color_cost(V, ui_mat, covi);
+            cost = reshape(cost,[rows,cols]);
             for j = i + 3 : 3 : num_layers_times_3
                 model2 = color_model(j : j + 2, :);
                 uj= model2( : , 1);
+                uj_mat = repmat(uj, [1, rows*cols]);
                 covj = model2( : , 2 : end);
-                [project_score, alpha_i, alpha_j, u_hat1, u_hat2] = projected_unmix(ui, covi, uj, covj, pixel);
+                [project_score, alpha_i, alpha_j, u_hat1, u_hat2] = projected_unmix(ui_mat, covi, uj_mat, covj, V);
+                % TODO:
                 if cost <= min(project_score, representation_score(r, c))
                     % fprintf("layer %d in case 1\n", i)
                     min_F_hat_layers(r, c, 1) = i;
