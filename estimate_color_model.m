@@ -32,6 +32,9 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
         % The paper is saying that after they select the color bin they want to add to the color model, they select the seed pixel using Eq. 11. After they have the seed pixel, they compute the weights of a guided filter centered at that pixel and use that to fit the normal distribution. The guided filter will have higher weights for pixels that are close in color and proximity to the center pixel. So basically they are determining the parameters of the normal distribution based on a local neighborhood of similar pixels around the seed pixel if that makes sense. (edited) 
         epsilon = 0.1;
         new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon);
+        if isempty(new)
+            break
+        end
         color_model = [color_model; new];
         showResult(image,seed_pixel_r,seed_pixel_c);
         % saveas(gcf, sprintf('radishes_point__self%02d.jpg',size(color_model,1)-2));
@@ -61,25 +64,30 @@ function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon)
             pixels = [pixels reshape(neighborhood(r, c, :),[3,1])];
         end
     end
-    weighted_mean = mean(pixels, 2);
-    weighted_cov = cov(pixels');
-
-    cov_norm = norm(weighted_cov);
-    cov_inv = inv(weighted_cov);
-    cov_inv_norm = norm(cov_inv);
-    if cov_norm < 1e-4 
-        weighted_cov = 0.0001 * eye(size(weighted_cov));
-    end    
-    if cov_inv_norm < 1e-4 
-        weighted_cov = 0.0001 * eye(size(weighted_cov));
+    [~,num] = size(pixels);
+    if num < 9 
+        new = [];
+    else
+        weighted_mean = mean(pixels, 2);
+        weighted_cov = cov(pixels');
+    
+        cov_norm = norm(weighted_cov);
+        cov_inv = inv(weighted_cov);
+        cov_inv_norm = norm(cov_inv);
+        if cov_norm < 1e-4 
+            weighted_cov = 0.0001 * eye(size(weighted_cov));
+        end    
+        if cov_inv_norm < 1e-4 
+            weighted_cov = 0.0001 * eye(size(weighted_cov));
+        end
+    
+        eigenvalues = eig(weighted_cov);
+        if any(eigenvalues < 0)
+            weighted_cov = 0.0001 * eye(size(weighted_cov));
+        end
+    
+        new = [weighted_mean,weighted_cov];
     end
-
-    eigenvalues = eig(weighted_cov);
-    if any(eigenvalues < 0)
-        weighted_cov = 0.0001 * eye(size(weighted_cov));
-    end
-
-    new = [weighted_mean,weighted_cov];
 
 
 end
