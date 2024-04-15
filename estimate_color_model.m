@@ -5,6 +5,14 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
     bins_mask = zeros(1000, rows,cols);
     representation_score = ones(rows, cols) * Inf;
     has_vote = true;
+    V = zeros(3,rows*cols);
+    for r = 1 : rows
+        for c = 1 : cols
+            pixel = image(r, c, :);
+            pixel = reshape(pixel , [3, 1]);
+            V(:,sub2ind([rows,cols],r,c)) = pixel;
+        end
+    end
     while has_vote
         [votes,bins_mask] = calculate_votes(image, bins_mask,representation_score,tau);
         [max_votes, max_bin] = max(votes(:));
@@ -27,7 +35,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
         color_model = [color_model; new];
         showResult(image,seed_pixel_r,seed_pixel_c);
         % saveas(gcf, sprintf('radishes_point__self%02d.jpg',size(color_model,1)-2));
-        [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = weight_pixel(image,color_model);
+        [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = weight_pixel(image, V,color_model);
     end
 end
 
