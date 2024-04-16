@@ -1,6 +1,7 @@
-function [U_final,Alpha_final] = smoothing(input,U_temp,Alpha_temp)
+function [U_final,Alpha_final] = smoothing(input,U_temp,Alpha_temp,color_model)
+    [rows,cols,~] = size(input);
     [Num_layer,~,~,~] = size(U_temp);
-    U_final = zeros(size(U_temp));
+    U_final = U_temp;
     Alpha_final = zeros(size(Alpha_temp));
 
     for i = 1:Num_layer
@@ -8,6 +9,27 @@ function [U_final,Alpha_final] = smoothing(input,U_temp,Alpha_temp)
         Alpha_final(i,:,:,:) = imguidedfilter(alpha,input,"NeighborhoodSize",60,"DegreeOfSmoothing",0.0001);
     end
     normal = sum(Alpha_final,1);
-    normal = repmat(normal, [5,1, 1]);
-    Alpha_final = Alpha_final .* normal;
+    normal = repmat(normal, [Num_layer,1, 1]);
+    Alpha_final = Alpha_final ./ normal;
+
+    normal = zeros(size(input));
+    for i = 1:Num_layer
+        layer_u = color_model((i-1)*3+1:(i-1)*3+3,1);
+        for r = 1:rows
+            for c = 1:cols
+                if Alpha_final(i,r,c) ~= 0 && all(U_final(i,r,c,:)==0) 
+                        U_final(i,r,c,:) = layer_u;
+                end
+                normal(r,c,:) = squeeze(normal(r,c,:)) + squeeze(U_final(i,r,c,:)) * Alpha_final(i,r,c);
+            end
+        end
+    end
+    normal = normal ./ input;
+    for k = 1:size(U_final, 1)
+        U_final(k, :, :, :) = squeeze(U_final(k, :, :, :)) ./ normal;
+        u = squeeze(U_final(k,:,:,:));
+        Alpha = squeeze(Alpha_final(k,:,:,:));
+        imwrite(u, sprintf('result_self%02d.png',i), 'png', 'Alpha', Alpha)
+    end
+
 end
