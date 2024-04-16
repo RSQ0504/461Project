@@ -17,7 +17,7 @@ function [U_final,Alpha_final] = smoothing(input,U_temp,Alpha_temp,color_model)
         layer_u = color_model((i-1)*3+1:(i-1)*3+3,1);
         for r = 1:rows
             for c = 1:cols
-                if Alpha_final(i,r,c) ~= 0 && all(U_final(i,r,c,:)==0) 
+                if Alpha_final(i,r,c) ~= 0 && all(U_temp(i,r,c,:)==0) 
                         U_final(i,r,c,:) = layer_u;
                 end
                 normal(r,c,:) = squeeze(normal(r,c,:)) + squeeze(U_final(i,r,c,:)) * Alpha_final(i,r,c);
