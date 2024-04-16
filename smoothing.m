@@ -29,7 +29,7 @@ function [U_final,Alpha_final] = smoothing(input,U_temp,Alpha_temp,color_model)
         U_final(k, :, :, :) = squeeze(U_final(k, :, :, :)) ./ normal;
         u = squeeze(U_final(k,:,:,:));
         Alpha = squeeze(Alpha_final(k,:,:,:));
-        imwrite(u, sprintf('result_self%02d.png',i), 'png', 'Alpha', Alpha)
+        imwrite(u, sprintf('result_self%02d.png',k), 'png', 'Alpha', Alpha)
     end
 
 end
