@@ -24,14 +24,14 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
 
 
         color_bin_mask = bins_mask(max_bin,:,:);
-
-        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask);
+        window_size = 30;
+        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
 
         % The paper is saying that after they select the color bin they want to add to the color model, they select the seed pixel using Eq. 11. After they have the seed pixel, they compute the weights of a guided filter centered at that pixel and use that to fit the normal distribution. The guided filter will have higher weights for pixels that are close in color and proximity to the center pixel. So basically they are determining the parameters of the normal distribution based on a local neighborhood of similar pixels around the seed pixel if that makes sense. (edited) 
         epsilon = 0.1;
-        new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon);
+        new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon, window_size);
         if isempty(new)
             break
         end
@@ -43,9 +43,9 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
 end
 
 
-function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon)
-    neighborhood = image(max(1, seed_pixel_x - 10) : min(size(image, 1), seed_pixel_x + 10), ...
-                   max(1, seed_pixel_y - 10) : min(size(image, 2), seed_pixel_y + 10),:);
+function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon, window_size)
+    neighborhood = image(max(1, seed_pixel_x - window_size) : min(size(image, 1), seed_pixel_x + window_size), ...
+                   max(1, seed_pixel_y - window_size) : min(size(image, 2), seed_pixel_y + window_size),:);
     center = reshape(image(seed_pixel_x, seed_pixel_y,:),[3,1]);
     center_colors = [];
     for color = 1 : 3
@@ -119,7 +119,7 @@ end
 
 
 
-function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask)
+function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size)
     [~,tar_x,tar_y] = size(color_bin_mask);
     color_bin_mask = reshape(color_bin_mask, [tar_x, tar_y]);
     [rows, cols, ~] = size(image);
@@ -131,8 +131,8 @@ function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask)
             end
             grad_image = 4 * image(r, c) - image(max(r-1,1), c) - image(min(r+1,rows), c) - image(r, max(c-1,1)) - image(r, min(c+1,cols));
             neighbor = color_bin_mask( ...
-                max(r-10,1):min(rows,r+10), ...
-                max(c-10,1):min(cols,c+10));
+                max(r-window_size,1):min(rows,r+window_size), ...
+                max(c-window_size,1):min(cols,c+window_size));
             Sp = sum(neighbor(:) == 1);
             score = Sp + exp(-norm(grad_image));
             if score > best_score
