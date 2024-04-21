@@ -17,4 +17,12 @@ function [U_temp,Alpha_temp] = extract_layers(image, color_model, min_F_hat_laye
             Alpha_temp(model_info(1),r,c,1) = alphas_1(r,c);
         end
     end
+   for i = 1:size(color_model,1)/3
+        u = squeeze(U_temp(i,:,:,:));
+        alpha = squeeze(Alpha_temp(i,:,:,:));
+        %imshow(temp);
+        %imwrite(temp,sprintf('result_self%02d.png',i),'jpg','Quality',95);
+        % imwrite(u, sprintf('result_self%02d.png',i), 'png', 'Alpha', alpha)
 end
+
+    
