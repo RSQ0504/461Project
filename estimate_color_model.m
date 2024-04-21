@@ -1,4 +1,4 @@
-function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = estimate_color_model(image, tau)
+function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = estimate_color_model(image, tau, window_size)
     color_model = [];
     seed_pixels = [];
     [rows, cols, ~] = size(image);
@@ -24,7 +24,6 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
 
 
         color_bin_mask = bins_mask(max_bin,:,:);
-        window_size = 30;
         [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
