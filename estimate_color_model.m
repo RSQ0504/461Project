@@ -2,7 +2,13 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
     color_model = [];
     seed_pixels = [];
     [rows, cols, ~] = size(image);
-    bins_mask = zeros(1000, rows,cols);
+    extended_img = padarray(image, [1, 1], 'replicate');
+
+    gradient = 4 * extended_img(2:end-1, 2:end-1,:) - ...
+                 extended_img(1:end-2, 2:end-1,:) - ...
+                 extended_img(3:end, 2:end-1,:) - ...
+                 extended_img(2:end-1, 1:end-2,:) - ...
+                 extended_img(2:end-1, 3:end,:);
     representation_score = ones(rows, cols) * Inf;
     has_vote = true;
     V = zeros(3,rows*cols);
@@ -14,7 +20,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
         end
     end
     while has_vote
-        [votes,bins_mask] = calculate_votes(image, bins_mask,representation_score,tau);
+        [votes,bins_mask] = calculate_votes(image, representation_score,tau,gradient);
         [max_votes, max_bin] = max(votes(:));
 
         if max_votes <= 0
@@ -91,28 +97,23 @@ function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon, window_si
 
 end
 
-function [votes,bins_mask] = calculate_votes(image, bins_mask,representation_score,tau)
+function [votes,bins_mask] = calculate_votes(image, representation_score,tau,gradient)
     votes = zeros(10, 10, 10);
-    [rows, cols, ~] = size(image);
-    for i = 1:rows
-        for j = 1:cols
-            rp = representation_score(i,j);
-            pixel = image(i, j, :);
-            r = pixel(1);
-            g = pixel(2);
-            b = pixel(3);
-            bin_r = max(ceil(r / 0.1),1);
-            bin_g = max(ceil(g / 0.1),1);
-            bin_b = max(ceil(b / 0.1),1);
-            index = sub2ind(size(votes), bin_r, bin_g, bin_b);
-            if rp < tau^2
-                bins_mask(index,i,j) = 0;
-                continue
-            end
-            bins_mask(index,i,j) = 1;
-            grad_image = 4 * image(i, j) - image(max(i-1,1), j) - image(min(i+1,rows), j) - image(i, max(j-1,1)) - image(i, min(j+1,cols));
-            votes(bin_r, bin_g, bin_b) = votes(bin_r, bin_g, bin_b) + exp(-norm(grad_image)) * (1 - exp(-rp));
-        end
+    [img_rows, img_cols, ~] = size(image);
+    bins_mask = zeros(1000, img_rows,img_cols);
+    [rows, cols] = find(representation_score>tau^2);
+    for i = 1:length(rows)
+           pixel = image(rows(i), cols(i), :);
+           r = pixel(1);
+           g = pixel(2);
+           b = pixel(3);
+           bin_r = max(ceil(r / 0.1),1);
+           bin_g = max(ceil(g / 0.1),1);
+           bin_b = max(ceil(b / 0.1),1);
+           index = sub2ind(size(votes), bin_r, bin_g, bin_b);
+           bins_mask(index,rows(i), cols(i)) = 1;
+           grad_image = squeeze(gradient(rows(i), cols(i),:));
+           votes(bin_r, bin_g, bin_b) = votes(bin_r, bin_g, bin_b) + exp(-norm(grad_image)) * (1 - exp(-representation_score(rows(i), cols(i))));
     end
 end
 
