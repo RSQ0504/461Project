@@ -20,7 +20,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
         end
     end
     while has_vote
-        [votes,bins_mask] = calculate_votes(image, representation_score,tau,gradient);
+        [votes,bins_mask] = calculate_votes(image, representation_score,tau, gradient);
         [max_votes, max_bin] = max(votes(:));
 
         if max_votes <= 0
@@ -30,7 +30,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
 
 
         color_bin_mask = bins_mask(max_bin,:,:);
-        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size);
+        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size, gradient);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
 
@@ -119,7 +119,7 @@ end
 
 
 
-function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size)
+function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size, gradient)
     [~,tar_x,tar_y] = size(color_bin_mask);
     color_bin_mask = reshape(color_bin_mask, [tar_x, tar_y]);
     [rows, cols, ~] = size(image);
@@ -129,7 +129,7 @@ function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,w
             if color_bin_mask(r,c) == 0
                 continue
             end
-            grad_image = 4 * image(r, c) - image(max(r-1,1), c) - image(min(r+1,rows), c) - image(r, max(c-1,1)) - image(r, min(c+1,cols));
+            grad_image = gradient(r,c);
             neighbor = color_bin_mask( ...
                 max(r-window_size,1):min(rows,r+window_size), ...
                 max(c-window_size,1):min(cols,c+window_size));
