@@ -30,7 +30,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
 
 
         color_bin_mask = bins_mask(max_bin,:,:);
-        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size, gradient);
+        [seed_pixel_r,seed_pixel_c] = select_seed_pixel5(image, color_bin_mask,window_size, gradient);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
 
@@ -143,4 +143,20 @@ function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,w
         end
     end
 
+end
+
+function [seed_pixel_r, seed_pixel_c] = select_seed_pixel5(image, color_bin_mask, window_size, gradient)
+    [rows, cols, ~] = size(image);
+    color_bin_mask = reshape(color_bin_mask, [rows, cols]);
+    nonzero_indices = find(color_bin_mask);
+    [rs, cs] = ind2sub([rows, cols], nonzero_indices);
+    grad_norms = exp(-gradient(nonzero_indices));
+    neighbor_filter = ones(window_size * 2 + 1);
+    neighbor_filter(window_size + 1, window_size + 1) = 0;
+    sum_neighbors = conv2(color_bin_mask, neighbor_filter, "same");
+    sum_neighbors_nonzero = sum_neighbors(nonzero_indices);
+    scores = sum_neighbors_nonzero .* grad_norms;
+    [~, max_index] = max(scores);
+    seed_pixel_r = rs(max_index);
+    seed_pixel_c = cs(max_index);
 end
