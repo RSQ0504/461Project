@@ -30,7 +30,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
 
 
         color_bin_mask = bins_mask(max_bin,:,:);
-        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size,gradient);
+        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
 
@@ -117,25 +117,30 @@ function [votes,bins_mask] = calculate_votes(image, representation_score,tau,gra
     end
 end
 
-function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size,gradient)
+
+
+function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size)
     [~,tar_x,tar_y] = size(color_bin_mask);
     color_bin_mask = reshape(color_bin_mask, [tar_x, tar_y]);
     [rows, cols, ~] = size(image);
-    [candiate_row,candiate_col] = find(color_bin_mask~=0);
     best_score = -inf;
-    for i = 1:length(candiate_row)
-        r = candiate_row(i);
-        c = candiate_col(i);
-        grad_image = gradient(r,c);
-        neighbor = color_bin_mask( ...
+    for r = 1:rows
+        for c = 1: cols 
+            if color_bin_mask(r,c) == 0
+                continue
+            end
+            grad_image = 4 * image(r, c) - image(max(r-1,1), c) - image(min(r+1,rows), c) - image(r, max(c-1,1)) - image(r, min(c+1,cols));
+            neighbor = color_bin_mask( ...
                 max(r-window_size,1):min(rows,r+window_size), ...
                 max(c-window_size,1):min(cols,c+window_size));
-        Sp = sum(neighbor(:) == 1);
-        score = Sp + exp(-norm(grad_image));
-        if score > best_score
+            Sp = sum(neighbor(:) == 1);
+            score = Sp + exp(-norm(grad_image));
+            if score > best_score
                 best_score = score;
                 seed_pixel_r = r;
                 seed_pixel_c = c;
+            end
         end
     end
-end    
+
+end
