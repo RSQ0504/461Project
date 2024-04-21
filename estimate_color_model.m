@@ -123,7 +123,7 @@ function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,w
     [rows, cols, ~] = size(image);
     [candiate_row,candiate_col] = find(color_bin_mask~=0);
     best_score = -inf;
-    for i = 1:length(candiate_row);
+    for i = 1:length(candiate_row)
         r = candiate_row(i);
         c = candiate_col(i);
         grad_image = gradient(r,c);
