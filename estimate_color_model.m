@@ -5,13 +5,13 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
     extended_img = padarray(image, [1, 1], 'replicate');
 
     gradient = 4 * extended_img(2:end-1, 2:end-1,:) - ...
-                 extended_img(1:end-2, 2:end-1,:) - ...
-                 extended_img(3:end, 2:end-1,:) - ...
-                 extended_img(2:end-1, 1:end-2,:) - ...
-                 extended_img(2:end-1, 3:end,:);
+                   extended_img(1:end-2, 2:end-1,:) - ...
+                   extended_img(3:end, 2:end-1,:) - ...
+                   extended_img(2:end-1, 1:end-2,:) - ...
+                   extended_img(2:end-1, 3:end,:);
     representation_score = ones(rows, cols) * Inf;
     has_vote = true;
-    V = zeros(3,rows*cols);
+    V = zeros(3, rows * cols);
     for r = 1 : rows
         for c = 1 : cols
             pixel = image(r, c, :);
@@ -30,7 +30,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
 
 
         color_bin_mask = bins_mask(max_bin,:,:);
-        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,window_size, gradient);
+        [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask, window_size, gradient);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
 
@@ -41,7 +41,7 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
             break
         end
         color_model = [color_model; new];
-        showResult(image,seed_pixel_r,seed_pixel_c);
+        % showResult(image,seed_pixel_r,seed_pixel_c);
         % saveas(gcf, sprintf('radishes_point__self%02d.jpg',size(color_model,1)-2));
         [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = weight_pixel(image, V,color_model);
     end
@@ -59,33 +59,34 @@ function new = get_new_layer(image,seed_pixel_x,seed_pixel_y, epsilon, window_si
     diff = sum((center_colors - neighborhood).^2, 3);
     mask = (diff < epsilon);
     [rows,cols] = size(mask);
-    pixels = [];
+    pixels = zeros(3, 100);
+    pixels_size = 0;
     % center = zeros(size(neighborhood)) .* center;
     for r = 1:rows
         for c = 1:cols
             if mask(r,c) ==0
                 continue
             end
-            pixels = [pixels reshape(neighborhood(r, c, :),[3,1])];
+            pixels_size = pixels_size + 1;
+            pixels(:, pixels_size) = reshape(neighborhood(r, c, :),[3,1]);
         end
     end
+    pixels = pixels(:, 1 : pixels_size);
     [~,num] = size(pixels);
     if num < 9 
         new = [];
     else
         weighted_mean = mean(pixels, 2);
         weighted_cov = cov(pixels');
-    
         cov_norm = norm(weighted_cov);
         cov_inv = inv(weighted_cov);
         cov_inv_norm = norm(cov_inv);
         if cov_norm < 1e-4 
             weighted_cov = 0.0001 * eye(size(weighted_cov));
-        end    
+        end
         if cov_inv_norm < 1e-4 
             weighted_cov = 0.0001 * eye(size(weighted_cov));
         end
-    
         eigenvalues = eig(weighted_cov);
         if any(eigenvalues < 0)
             weighted_cov = 0.0001 * eye(size(weighted_cov));
@@ -102,7 +103,7 @@ function [votes,bins_mask] = calculate_votes(image, representation_score,tau,gra
     [img_rows, img_cols, ~] = size(image);
     bins_mask = zeros(1000, img_rows,img_cols);
     [rows, cols] = find(representation_score>tau^2);
-    for i = 1:length(rows)
+    for i = 1 : length(rows)
            pixel = image(rows(i), cols(i), :);
            r = pixel(1);
            g = pixel(2);
@@ -142,5 +143,4 @@ function [seed_pixel_r,seed_pixel_c] = select_seed_pixel(image, color_bin_mask,w
             end
         end
     end
-
 end
