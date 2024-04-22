@@ -3,14 +3,16 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
     seed_pixels = [];
     [rows, cols, ~] = size(image);
     extended_img = padarray(image, [1, 1], 'replicate');
-
+    %  Calculate image gradient
     gradient = 4 * extended_img(2:end-1, 2:end-1,:) - ...
                    extended_img(1:end-2, 2:end-1,:) - ...
                    extended_img(3:end, 2:end-1,:) - ...
                    extended_img(2:end-1, 1:end-2,:) - ...
                    extended_img(2:end-1, 3:end,:);
     representation_score = ones(rows, cols) * Inf;
+    % Check whether all pixels are well represented
     has_vote = true;
+    % Using 3xN matrix to store the whole information of the given image
     V = zeros(3,rows*cols);
     for r = 1 : rows
         for c = 1 : cols
@@ -20,7 +22,9 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
         end
     end
     while has_vote
+        % Calculate vote value for each color bin
         [votes,bins_mask] = calculate_votes(image, representation_score,tau, gradient);
+        % Pick the color bin with highest vote
         [max_votes, max_bin] = max(votes(:));
 
         if max_votes <= 0
@@ -28,21 +32,26 @@ function [color_model,seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1
             continue;
         end
 
-
+        % bins_mask(1000 x row x col) is the masks to find pixels for each color bins
+        % Pick the mask of color bin with highest vote
         color_bin_mask = bins_mask(max_bin,:,:);
         [seed_pixel_r,seed_pixel_c] = select_seed_pixel5(image, color_bin_mask,window_size, gradient);
         seed_pixel = reshape(image(seed_pixel_r,seed_pixel_c,:),[3,1]); % ?
         seed_pixels = [seed_pixels seed_pixel];
 
-        % The paper is saying that after they select the color bin they want to add to the color model, they select the seed pixel using Eq. 11. After they have the seed pixel, they compute the weights of a guided filter centered at that pixel and use that to fit the normal distribution. The guided filter will have higher weights for pixels that are close in color and proximity to the center pixel. So basically they are determining the parameters of the normal distribution based on a local neighborhood of similar pixels around the seed pixel if that makes sense. (edited) 
         epsilon = 0.1;
+        % new is a 3 x 4 matrix. The first column vector store the mean value of normal distribution
+        % The rest elements store the covariance of normal distribution
         new = get_new_layer(image,seed_pixel_r,seed_pixel_c, epsilon, window_size);
         if isempty(new)
             break
         end
+        % Append new into color model
         color_model = [color_model; new];
-        showResult(image,seed_pixel_r,seed_pixel_c);
+        % showResult(image,seed_pixel_r,seed_pixel_c);
         % saveas(gcf, sprintf('radishes_point__self%02d.jpg',size(color_model,1)-2));
+
+        % Use projected color unmixing to renew representation score, get color value and alpha value for each existing layer
         [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = weight_pixel(image, V,color_model);
     end
 end
