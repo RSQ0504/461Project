@@ -18,5 +18,3 @@ function [U_temp,Alpha_temp] = extract_layers(image, color_model, min_F_hat_laye
         end
     end
 end
-
-    

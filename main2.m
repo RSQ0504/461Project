@@ -28,11 +28,11 @@ begin_save = tic;
 new_alphas = alpha_add_to_overlay(Alpha_final);
 
 for k = 1 : num_layers
-        u = squeeze(U_final(k, : , : , : ));
-        alpha_alpha_add = squeeze(Alpha_final(k, : , : , : ));
-        alpha_overlay = squeeze(new_alphas(k, : , : , : ));
-        imwrite(u, sprintf("results/alpha_add/" + input_name + "_%02d.png", num_layers - k + 1), 'png', 'Alpha', alpha_alpha_add);
-        imwrite(u, sprintf(name_format + "overlay.png", num_layers - k + 1), 'png', 'Alpha', alpha_overlay);
+    u = squeeze(U_final(k, : , : , : ));
+    alpha_alpha_add = squeeze(Alpha_final(k, : , : , : ));
+    alpha_overlay = squeeze(new_alphas(k, : , : , : ));
+    imwrite(u, sprintf("results/alpha_add/" + input_name + "_%02d.png", num_layers - k + 1), 'png', 'Alpha', alpha_alpha_add);
+    imwrite(u, sprintf(name_format + "overlay.png", num_layers - k + 1), 'png', 'Alpha', alpha_overlay);
 end
 finish_save = toc(begin_save);
 fprintf("outputting results took %4.4f seconds\n", finish_save);
