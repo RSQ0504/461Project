@@ -1,4 +1,4 @@
-input_folder = "test_images/";
+input_folder = "full/";
 input_name = "85";
 name_format = "results/" + input_name + "_%02d";
 input = im2double(imread(input_folder + input_name + ".png"));
