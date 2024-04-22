@@ -33,7 +33,7 @@ function [representation_score, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u
                 uj_mat = repmat(uj, [1, rows*cols]);
                 covj = model2( : , 2 : end);
                 [project_score, alpha_i, alpha_j, u_hat1, u_hat2] = projected_unmix(ui_mat, covi, uj_mat, covj, V);
-                % TODO:
+
                 temp = min(project_score, rp);
                 filter = find(cost <= temp);
                 for idx = 1:length(filter)
