@@ -1,9 +1,12 @@
-input_folder = "full/";
+input_folder = "test_images/";
 input_name = "85";
 name_format = "results/" + input_name + "_%02d";
 input = im2double(imread(input_folder + input_name + ".png"));
-rmdir("results/", "s");
+if exist("results/", "dir")
+    rmdir("results/", "s");
+end
 mkdir("results/")
+mkdir("results/alpha_add/")
 
 begin_estimate_color_model = tic;
 [color_model, seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = estimate_color_model(input, 15, 30);
@@ -25,12 +28,11 @@ begin_save = tic;
 new_alphas = alpha_add_to_overlay(Alpha_final);
 
 for k = 1 : num_layers
-        u_no_smooth = squeeze(U_temp(k, : , : , : ));
-        alpha_no_smooth = squeeze(Alpha_temp(k, : , : , : ));
         u = squeeze(U_final(k, : , : , : ));
-        Alpha = squeeze(new_alphas(k, : , : , : ));
-        % imwrite(u_no_smooth, sprintf(name_format + "no_smooth.png", num_layers - k + 1), 'png', 'Alpha', alpha_no_smooth);
-        imwrite(u, sprintf(name_format + "overlay.png", num_layers - k + 1), 'png', 'Alpha', Alpha);
+        alpha_alpha_add = squeeze(Alpha_final(k, : , : , : ));
+        alpha_overlay = squeeze(new_alphas(k, : , : , : ));
+        imwrite(u, sprintf("results/alpha_add/" + input_name + "_%02d.png", num_layers - k + 1), 'png', 'Alpha', alpha_alpha_add);
+        imwrite(u, sprintf(name_format + "overlay.png", num_layers - k + 1), 'png', 'Alpha', alpha_overlay);
 end
 finish_save = toc(begin_save);
 fprintf("outputting results took %4.4f seconds\n", finish_save);
