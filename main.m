@@ -2,14 +2,19 @@ input_folder = "full/";
 input_name = "85";
 name_format = "results/" + input_name + "_%02d";
 input = im2double(imread(input_folder + input_name + ".png"));
+
+tau = 15;
+window_size = 30;
+
 if exist("results/", "dir")
     rmdir("results/", "s");
 end
 mkdir("results/")
 mkdir("results/alpha_add/")
 
+
 begin_estimate_color_model = tic;
-[color_model, seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = estimate_color_model(input, 15, 30);
+[color_model, seed_pixels, min_F_hat_layers, alphas_1, alphas_2, u_hat_1, u_hat_2] = estimate_color_model(input, tau, window_size);
 finish_estimate_color_model = toc(begin_estimate_color_model);
 fprintf("estimate color model took %4.4f seconds\n", finish_estimate_color_model);
 
